@@ -1,0 +1,36 @@
+# docker-compose.yml
+
+version: "3.8"
+services:
+  server:
+    image: python:3.11-slim
+    command: bash -c "python -m http.server 8000"
+    networks:
+      - labnet
+
+
+  client:
+    image: curlimages/curl:8.3.0
+    networks:
+      - labnet
+    depends_on:
+      - server
+    command: ["sh", "-c", "sleep 2; curl -v http://server:8000 || true; sleep 30"]
+
+
+  sniffer:
+    image: nicolaka/netshoot:latest
+    networks: 
+      - labnet
+    depends_on:
+      - server
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    command: ["sh", "-c", "tcpdump -i eth0 -s 0 -w /tmp/capture.pcap & sleep 10; pkill tcpdump; sleep 30"]
+    volumes: 
+      - ./capt: /tmp
+
+  networks:
+    labnet:
+      driver: bridge
