@@ -29,8 +29,8 @@ services:
       - NET_ADMIN
     command: ["sh", "-c", "tcpdump -i eth0 -s 0 -w /tmp/capture.pcap & sleep 10; pkill tcpdump; sleep 30"]
     volumes: 
-      - ./capt: /tmp
+      - ./capt:/tmp
 
-  networks:
-    labnet:
-      driver: bridge
+networks:
+  labnet:
+    driver: bridge
